@@ -72,34 +72,50 @@ Every write is verified against `patched_sha256`, so a stale store fails loudly 
 
 ## Adding or updating an override
 
-1. Install/update the skill, then edit it in your repository until it is what you want.
-2. Regenerate the entry (paths below assume you're in the edited repository):
+Overrides are authored and maintained directly in the `full/` directory as complete markdown files (`full/<skill>.md`).
+
+1. Edit or create the full snapshot at `full/<skill>.md`.
+2. Generate or re-generate the patch and manifest entry using `tools/add.sh`:
 
 ```bash
-S=grilling; D=.agents/skills/$S/SKILL.md; P=patches/$S.patch; F=full/$S.md
-STORE=/path/to/skill-overrides
-curl -fsSL <upstream_url from manifest.tsv> -o /tmp/upstream.md
-mkdir -p "$STORE/$(dirname $D)" "$STORE/patches" "$STORE/full"
-cp /tmp/upstream.md /tmp/check-$S.md && mkdir -p /tmp/c/$(dirname $D) && cp /tmp/upstream.md /tmp/c/$D
-diff -u --label "a/$D" --label "b/$D" /tmp/upstream.md "$D" > "$STORE/$P"
-patch -p1 -d /tmp/c -i "$STORE/$P" && cmp /tmp/c/$D "$D"   # must reproduce your file
-cp "$D" "$STORE/$F"
-sha256sum /tmp/upstream.md "$D"   # paste into manifest.tsv: upstream_sha256, patched_sha256
+# For an existing skill already in manifest.tsv:
+tools/add.sh <skill>
+
+# For a new skill (with full/<skill>.md pre-created):
+tools/add.sh <skill> <upstream_url>
 ```
 
-3. Update that row in `manifest.tsv`, then commit and push the store. `diff -u` must
-   produce a non-empty patch; if it's empty the skill has no local edits.
+This automatically downloads pristine upstream, calculates hashes, verifies the diff in a sandbox, generates `patches/<skill>.patch`, updates `manifest.tsv`, and validates the patch offline.
 
-Adding a brand-new skill: copy its row shape into `manifest.tsv` (7 tab-separated
-fields), then run the same recipe.
+### Tooling commands
+
+- **Update an existing override:**
+  ```bash
+  tools/add.sh grilling
+  ```
+- **Add a new override:**
+  ```bash
+  tools/add.sh my-skill https://raw.githubusercontent.com/.../SKILL.md
+  ```
+- **Refresh overrides when upstream moves:**
+  ```bash
+  tools/refresh.sh          # checks and rebases all skills against updated upstream
+  tools/refresh.sh grilling # refresh a specific skill
+  tools/refresh.sh --dry-run
+  ```
+- **Validate store integrity:**
+  ```bash
+  tools/validate.sh           # validates manifest syntax, file existence, hashes, and patch application
+  tools/validate.sh --offline # validate without network downloads
+  ```
 
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| `drifted … using full/…` | upstream changed the file | regenerate (see above) |
-| `CONFLICT` | upstream text moved under the patch | `git -C <repo> apply --3way <patch>`, then regenerate |
-| `MISMATCH` | stale `full/<skill>.md` | regenerate; the hash check caught it |
+| `drifted … using full/…` | upstream changed the file | run `tools/refresh.sh <skill>` |
+| `CONFLICT` | upstream text moved under the patch | run `tools/refresh.sh <skill>`, or `git -C <repo> apply --3way <patch>` |
+| `MISMATCH` | stale `full/<skill>.md` or wrong hash | run `tools/validate.sh` and `tools/refresh.sh <skill>` |
 | `cannot fetch …` | wrong `--base-url`, or repo private | pass `--base-url`, or check visibility |
 | `not inside a git worktree` | ran outside a repo | pass `--dir <repo>` |
 
