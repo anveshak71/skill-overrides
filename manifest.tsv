@@ -1,0 +1,14 @@
+# Re-appliable local customizations for third-party agent skills.
+#
+# Columns (tab-separated, '#' starts a comment, blank lines ignored):
+#   skill            identifier, also the CLI filter argument
+#   target           path of the installed file, relative to the repository root
+#   upstream_url     where upstream publishes the file (used by tools/refresh.sh)
+#   upstream_sha256  sha256 of the file as shipped upstream; patches/<skill>.patch applies to it
+#   patched_sha256   sha256 of the file after the override is applied (idempotency check)
+#   patch            patch applied when upstream_sha256 matches; upstream edits still flow
+#   full             whole customized file, copied when upstream_sha256 is unknown
+#
+# Maintained with tools/refresh.sh and tools/validate.sh. Never edit hashes by hand.
+skill	target	upstream_url	upstream_sha256	patched_sha256	patch	full
+grilling	.agents/skills/grilling/SKILL.md	https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grilling/SKILL.md	befdff1e27a1dfe2a294d5871169ac1afe16d983911daa4f32627514a48c1e15	6c114fa1bc24661a3577cf4f55a3dc9aa1c2d5589911aad07978e39fbee4a630	patches/grilling.patch	full/grilling.md
