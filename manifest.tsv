@@ -12,3 +12,4 @@
 # Maintained with tools/refresh.sh and tools/validate.sh. Never edit hashes by hand.
 skill	target	upstream_url	upstream_sha256	patched_sha256	patch	full
 grilling	.agents/skills/grilling/SKILL.md	https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grilling/SKILL.md	befdff1e27a1dfe2a294d5871169ac1afe16d983911daa4f32627514a48c1e15	6c114fa1bc24661a3577cf4f55a3dc9aa1c2d5589911aad07978e39fbee4a630	patches/grilling.patch	full/grilling.md
+grill-with-docs	.agents/skills/grill-with-docs/SKILL.md	https://raw.githubusercontent.com/mattpocock/skills/refs/heads/main/skills/engineering/grill-with-docs/SKILL.md	7de372c13488f1ee96cc11cd8907b56b6809cc93eef776eeddd37de6b6cbe3fe	af4485558d142ada4a51bfef91786fdfc60951bdb9d716cee2a3b3b5828fe1d1	patches/grill-with-docs.patch	full/grill-with-docs.md
